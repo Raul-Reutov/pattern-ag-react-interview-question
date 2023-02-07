@@ -1,3 +1,7 @@
+.home-wrapper {
+    height: 100%;
+}
 .home-container {
     max-width:2000px !important;
+    height: 100%;
 }

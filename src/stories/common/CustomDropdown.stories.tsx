@@ -26,9 +26,9 @@ export const SomeItems = Template.bind({});
 SomeItems.args = {
     title: "Country",
     options: [
-        {value: "USA"},
-        { value: "Brazil" },
-        { value: "Canada" }
+        "USA",
+        "Brazil",
+        "Canada"
     ]
 };
 

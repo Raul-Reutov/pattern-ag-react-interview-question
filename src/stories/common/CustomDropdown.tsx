@@ -5,7 +5,7 @@ import "./custom-dropdown.css"
 interface CustomDropdownProps {
     title: string;
     currentSelection?: string;
-    options?: Array<DropdownOption>;
+    options?: Array<string>;
     onClick?: (choice: string) => void;
 }
 
@@ -28,20 +28,18 @@ export const CustomDropdown = ({
     }
 
     return (
-        <div>
-            <h4>{props.title}</h4>
-            <Dropdown className="dropdown">
+        <div className="dropdown">
+            <p>{props.title}:</p>
+            <Dropdown >
                 <Dropdown.Toggle>
                     {currentSelection}
                 </Dropdown.Toggle>
 
                 <Dropdown.Menu>
-                    {/* Set Default Value */}
-                    <Dropdown.Item onClick={() => updateSelected("All")}>All</Dropdown.Item>
                     {
                         // Populate the dropdown with all of the options.
                         options.map((option) => 
-                            <Dropdown.Item onClick={() => updateSelected(option.value)}>{option.value}</Dropdown.Item>
+                            <Dropdown.Item onClick={() => updateSelected(option)}>{option}</Dropdown.Item>
                         )
                     }
                 </Dropdown.Menu>

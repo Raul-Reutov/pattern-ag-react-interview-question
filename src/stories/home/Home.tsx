@@ -18,7 +18,7 @@ export const Home = ({
 }: HomeProps) => {
 
     return (
-        <div>
+        <div className="home-wrapper">
             <Header />
             <Container className="home-container">
                 <Row>

@@ -3,12 +3,14 @@ import type { RootState } from '../store'
 
 // Define a type for the slice state
 interface FilterState {
-    country: string
+    country: string,
+    countryOptions: Array<string>
 }
 
 // Define the initial state using that type
 const initialState: FilterState = {
     country: "All",
+    countryOptions: ["All"]
 }
 
 export const filterSlice = createSlice({
@@ -18,10 +20,14 @@ export const filterSlice = createSlice({
     reducers: {
         country: (state, action) => {
             state.country = action.payload
+        },
+        countryOptions: (state, action) => {
+            state.countryOptions = ["All"]
+            action.payload.map((value: string) => state.countryOptions.push(value))
         }
     }
 })
 
-export const { country } = filterSlice.actions
+export const { country, countryOptions } = filterSlice.actions
 
 export default filterSlice.reducer
