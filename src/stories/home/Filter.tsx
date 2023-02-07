@@ -1,5 +1,5 @@
 import React from 'react';
-import { Header } from "../common/Header"
+import { CustomDropdown } from "../common/CustomDropdown"
 import "./filter.css"
 interface FilterProps {
 
@@ -8,12 +8,14 @@ interface FilterProps {
 /**
  * Primary UI component for user interaction
  */
-export const Home = ({
+export const Filter = ({
     ...props
 }: FilterProps) => {
 
     return (
-        <div>
+        <div className="filter">
+            <h3>Filters:</h3>
+            <CustomDropdown title="Country"/>
             
         </div>
     );
