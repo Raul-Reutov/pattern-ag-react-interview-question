@@ -20,6 +20,7 @@ export const filterSlice = createSlice({
     reducers: {
         country: (state, action) => {
             state.country = action.payload
+            console.log("CHANGED")
         },
         countryOptions: (state, action) => {
             state.countryOptions = ["All"]
