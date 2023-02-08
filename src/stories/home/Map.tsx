@@ -28,7 +28,7 @@ export const Map = () => {
                 container: mapDiv.current || '',
                 style: 'mapbox://styles/mapbox/streets-v12',
                 center: [-121.91390991210938, 40.316184625814095],
-                zoom: 9,
+                zoom: 3,
             })
             
             // Add map navigation controls

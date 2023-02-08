@@ -14,6 +14,10 @@ export const Filter = () => {
             <CustomDropdown title="Country" options={currentCountryOptions} onClick={(newOption: string) =>
                 dispatch(country(newOption))
             }/>
+            <p className="notice-text">* Please allow map to finish <br />
+                zooming before selecting a <br />
+                new choice.
+            </p>
         </div>
     );
 };
