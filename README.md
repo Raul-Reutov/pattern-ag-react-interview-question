@@ -2,6 +2,11 @@
 
 Design and build a small web application to present USGS earthquake data on a map in the browser.
 
+## Developing
+- `yarn install` - install node stuff
+- `yarn start` - run app
+- `yarn storybook` - run storybook
+
 ## Requirements
 
 - Frontend logic must be handled using React.

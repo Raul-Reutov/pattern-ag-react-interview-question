@@ -1,5 +1,4 @@
 import React from 'react';
-import { DropdownOption } from '../../interfaces/dropdown-option.interface';
 import Dropdown from 'react-bootstrap/Dropdown';
 import "./custom-dropdown.css"
 interface CustomDropdownProps {
@@ -9,17 +8,13 @@ interface CustomDropdownProps {
     onClick?: (choice: string) => void;
 }
 
-
-/**
- * Primary UI component for user interaction
- */
 export const CustomDropdown = ({
     options = [],
     ...props
 }: CustomDropdownProps) => {
     const [currentSelection, setCurrentSelection] = React.useState("All")
 
-    // Function to update the display with the selected choice
+    // Function to update the display for the selected choice
     const updateSelected = (selection: string) => {
         setCurrentSelection(selection);
         if (props.onClick) {

@@ -8,9 +8,6 @@ interface PopupProps {
     title: string
 }
 
-/**
- * Primary UI component for user interaction
- */
 export const Popup = ({
     ...props
 }: PopupProps) => {
