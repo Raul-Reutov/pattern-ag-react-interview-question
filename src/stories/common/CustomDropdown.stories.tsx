@@ -9,7 +9,6 @@ export default {
         backgroundColor: { control: 'color' },
     },
     parameters: {
-        // More on Story layout: https://storybook.js.org/docs/react/configure/story-layout
         layout: 'fullscreen',
     },
 } as ComponentMeta<typeof CustomDropdown>;
@@ -22,7 +21,6 @@ Nothing.args = {
 };
 
 export const SomeItems = Template.bind({});
-
 SomeItems.args = {
     title: "Country",
     options: [
@@ -31,4 +29,3 @@ SomeItems.args = {
         "Canada"
     ]
 };
-

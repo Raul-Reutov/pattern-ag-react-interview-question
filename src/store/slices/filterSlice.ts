@@ -1,5 +1,4 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit'
-import type { RootState } from '../store'
+import { createSlice } from '@reduxjs/toolkit'
 
 // Define a type for the slice state
 interface FilterState {
@@ -15,7 +14,6 @@ const initialState: FilterState = {
 
 export const filterSlice = createSlice({
     name: 'filter',
-    // `filterSlice` will infer the state type from the `initialState` argument
     initialState,
     reducers: {
         country: (state, action) => {
