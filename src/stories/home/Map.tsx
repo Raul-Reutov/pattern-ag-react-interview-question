@@ -5,8 +5,6 @@ import './map.css';
 import { Popup } from "../common/Popup"
 import { country, countryOptions } from "../../store/slices/filterSlice"
 import { useAppDispatch, useAppSelector } from '../../store/hook';
-import { useDispatch } from 'react-redux';
-import { current } from 'immer';
 import * as turf from '@turf/turf'
 import { Coord } from '@turf/turf';
 import earthquakeJson from "../../data/earthquakes.json"
@@ -36,39 +34,7 @@ export const Map = ({
     const popUpRef = React.useRef(new mapboxgl.Popup({ offset: 15 }))
     const currentCountry = useAppSelector((state) => state.filter.country)
 
-    
-    const getUniqueOptions = (options: Array<string>) => {
-        const uniqueOptions: Array<string> = [];
-        for (const option of options) {;
-            if (!uniqueOptions.includes(option)) {
-                uniqueOptions.push(option)
-            }
-        }
-        return uniqueOptions;
-    }
 
-   /* const insideMultiPolygon = (point: Array<number>, multiPolygon: any) => {
-        for(const polygon of multiPolygon) {
-            
-        }
-    }
-
-    const insidePolygon = (point: Array<number>, polygon:any) => {
-        var x = point[0], y = point[1];
-
-        var inside = false;
-        for (var i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-            var xi = polygon[i][0], yi = polygon[i][1];
-            var xj = polygon[j][0], yj = polygon[j][1];
-
-            var intersect = ((yi > y) != (yj > y))
-                && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-            if (intersect) inside = !inside;
-        }
-
-        return inside;
-    };*/
-    
     // Init map
     React.useEffect(() => {
 
@@ -181,95 +147,9 @@ export const Map = ({
 
                     // Init filters
                     map.on('moveend', (e) => {
-                        
-                        let newCountryOptions: Array<string> = []
-                        map!.querySourceFeatures("countries").map((feature) => {
-                            newCountryOptions.push(feature["properties"]!["ADMIN"])
-                        })
-                        newCountryOptions = getUniqueOptions(newCountryOptions);
-                        dispatch(countryOptions(newCountryOptions))
-
-                        // country name
-                        const countryNameFilter = map!.getFilter("countries-layer-line")
-                        if(countryNameFilter) {
-                            const countryName = countryNameFilter[2];
-                            // get polygons for selected country
-                            let countryFeature: any = null
-                            console.log("Getting country feature for " + countryName)
-                            for (const feature of countriesJson["features"] as any) {
-                                if (feature["properties"]["ADMIN"] === countryName) {
-                                    countryFeature = feature;
-                                    break;
-                                }
-                            }
-                            
-                            // filter polygon against earthquake. if true, add feature.
-                            if(countryFeature) {
-                                console.log("Filtering Earthqaukes")
-                                let updatedJson: any = { "type": "FeatureCollection", "features": [] };
-                                for (const feature of earthquakeJson["features"] as any) {
-                                    const point = turf.point(feature["geometry"]["coordinates"]);
-                                    //const polygon = turf.polygon(countryFeature["geometry"]["coordinates"]);
-                                    if (turf.inside(point, countryFeature["geometry"])) {
-                                        updatedJson["features"].push(feature)
-                                    }
-                                }
-                                const source: mapboxgl.GeoJSONSource = map!.getSource('earthquakes') as mapboxgl.GeoJSONSource;
-                                source.setData(updatedJson as any)
-                                console.log(updatedJson["features"])
-                            }
-                            
-                        }
-                        // Check which earthquakes to display
-                        // const source: mapboxgl.GeoJSONSource = map!.getSource('countries') as mapboxgl.GeoJSONSource;
-                        
-                        // const renderedPolygons: mapboxgl.MapboxGeoJSONFeature[] = map!.queryRenderedFeatures(e.point, {
-                        //     layers: ["countries-layer-fill"]
-                        // })
-
-                        // const earthquakeFeatures = map!.queryRenderedFeatures(e.point, {
-                        //     layers: ['earthquakes-layer']
-                        // });
-                        // if (!earthquakeFeatures.length) {
-                        //     return;
-                        // }
-
-                        // for(const geometry of renderedPolygons){
-                            
-                        //     //console.log(geometry["coordinates"])
-                        //     const point:any = earthquakeFeatures[0];
-                        //     if (point) {
-                        //         console.log(point.geometry)
-                        //         console.log(turf.inside(point.geometry["coordinates"] as turf.Coord, geometry as any))
-                        //         //map!.setFilter('earthquakes-layer', ['==', ['get', 'coordinates'], currentCountry])
-                        //     }
-                            
-                            
-                        // }
-                        //console.log(map!.getFilter("countries-layer-line"))
-                        // country name
-                        //const countryName = map!.getFilter("countries-layer-line")
-                        // if(countryName) {
-                        //     console.log(countryName[2])
-                        //     // filter earthquakes
-                        //     map!.querySourceFeatures("earthquake").map((feature) => {
-                        //         newCountryOptions.push(feature["properties"]!["ADMIN"])
-                        //     })
-                        // }
 
                         
-                        const countryFeatures = map!.queryRenderedFeatures(e.point, {
-                            layers: ["countries-layer-fill"],
-                        });
-                        //console.log(countryFeatures)
 
-                        
-                        //const insideEarthquakes: any = turf.inside(libraryFeature, countryFeatures);
-
-                        ///source.setData({
-                        //    'type': 'FeatureCollection',
-                        //    'features': [insideEarthquakes]
-                        //})
                     });
                     
                 }
@@ -283,19 +163,49 @@ export const Map = ({
 
         if (map?.isStyleLoaded() && map?.isSourceLoaded("countries")) {
             // Filter countries
-            if (currentCountry === "All") {
+            const source: mapboxgl.GeoJSONSource = map!.getSource('earthquakes') as mapboxgl.GeoJSONSource;
+
+            if (currentCountry === "All") { // Reset to display everything
                 map!.setFilter('countries-layer-line', null)
                 map!.setFilter('countries-layer-fill', null)
-            } else {
+                source.setData(earthquakeJson as any)
+            } else { // Update map according to new countr selected
                 
                 map!.setFilter('countries-layer-line', ['==', ['get', 'ADMIN'], currentCountry])
                 map!.setFilter('countries-layer-fill', ['==', ['get', 'ADMIN'], currentCountry])
+                
+                // get polygons for selected country
+                let countryFeature: any = null
+                for (const feature of countriesJson["features"] as any) {
+                    if (feature["properties"]["ADMIN"] === currentCountry) {
+                        countryFeature = feature;
+                        break;
+                    }
+                }
+
+                // filter polygon against earthquake. if true, add feature.
+                if (countryFeature) {
+                    console.log("Filtering Earthqaukes")
+                    let updatedJson: any = { "type": "FeatureCollection", "features": [] };
+                    for (const feature of earthquakeJson["features"] as any) {
+                        const point = turf.point(feature["geometry"]["coordinates"]);
+                        if (turf.inside(point, countryFeature["geometry"])) {
+                            updatedJson["features"].push(feature)
+                        }
+                    }
+
+                    source.setData(updatedJson as any)
+                    console.log(updatedJson["features"])
+                }
+                const bbox = turf.bbox(countryFeature)
+
+                if (bbox.length >= 4){
+                    map!.fitBounds([bbox[0], bbox[1], bbox[2], bbox[3]], {padding: 20})
+                }
+                console.log(countryFeature)
+                
 
             }
-
-            map!.setFilter('earthquakes-layer')
-            // Filter earthquakes
-
         }
         
         !map && attachMap(setMap, mapDiv)
