@@ -7,6 +7,11 @@ import { country, countryOptions } from "../../store/slices/filterSlice"
 import { useAppDispatch, useAppSelector } from '../../store/hook';
 import { useDispatch } from 'react-redux';
 import { current } from 'immer';
+import * as turf from '@turf/turf'
+import { Coord } from '@turf/turf';
+import earthquakeJson from "../../data/earthquakes.json"
+import countriesJson from "../../data/countries.json"
+
 interface MapProps {
     countries?: Array<any>,
     earthquakes?: Array<any>
@@ -31,6 +36,7 @@ export const Map = ({
     const popUpRef = React.useRef(new mapboxgl.Popup({ offset: 15 }))
     const currentCountry = useAppSelector((state) => state.filter.country)
 
+    
     const getUniqueOptions = (options: Array<string>) => {
         const uniqueOptions: Array<string> = [];
         for (const option of options) {;
@@ -41,7 +47,7 @@ export const Map = ({
         return uniqueOptions;
     }
 
-    const insideMultiPolygon = (point: Array<number>, multiPolygon: any) => {
+   /* const insideMultiPolygon = (point: Array<number>, multiPolygon: any) => {
         for(const polygon of multiPolygon) {
             
         }
@@ -61,7 +67,7 @@ export const Map = ({
         }
 
         return inside;
-    };
+    };*/
     
     // Init map
     React.useEffect(() => {
@@ -87,13 +93,21 @@ export const Map = ({
                     map.addSource('earthquakes', {
                         type: 'geojson',
                         // Use a URL for the value for the `data` property.
-                        data: "https://raw.githubusercontent.com/Raul-Reutov/pattern-ag-react-interview-question/0d50ab5332a10c5052c6f4eef44e046103285f32/data/earthquakes.geojson",
+                        data: earthquakeJson as any,
                     });
+                    map.addSource('displayed-earthquakes', {
+                        type: 'geojson',
+                        data: {
+                            type: 'FeatureCollection',
+                            features: []
+                        }
+                    });
+                    
 
                     map.addSource('countries', {
                         type: 'geojson',
                         // Use a URL for the value for the `data` property.
-                        data: "https://raw.githubusercontent.com/Raul-Reutov/pattern-ag-react-interview-question/0d50ab5332a10c5052c6f4eef44e046103285f32/data/countries.geojson",
+                        data: countriesJson as any,
                     });
 
                     map.addLayer({
@@ -166,20 +180,67 @@ export const Map = ({
                     });
 
                     // Init filters
-                    map.on('moveend', () => {
+                    map.on('moveend', (e) => {
+                        
                         let newCountryOptions: Array<string> = []
                         map!.querySourceFeatures("countries").map((feature) => {
                             newCountryOptions.push(feature["properties"]!["ADMIN"])
                         })
                         newCountryOptions = getUniqueOptions(newCountryOptions);
                         dispatch(countryOptions(newCountryOptions))
+
+                        // Check which earthquakes to display
+                        const source: mapboxgl.GeoJSONSource = map!.getSource('countries') as mapboxgl.GeoJSONSource;
+                        
+                        const renderedPolygons: mapboxgl.MapboxGeoJSONFeature[] = map!.queryRenderedFeatures(e.point, {
+                            layers: ["countries-layer-fill"]
+                        })
+
+                        const earthquakeFeatures = map!.queryRenderedFeatures(e.point, {
+                            layers: ['earthquakes-layer']
+                        });
+                        if (!earthquakeFeatures.length) {
+                            return;
+                        }
+
+                        for(const geometry of renderedPolygons){
+                            
+                            //console.log(geometry["coordinates"])
+                            const point:any = earthquakeFeatures[0];
+                            if (point) {
+                                console.log(point.geometry)
+                                console.log(turf.inside(point.geometry["coordinates"] as turf.Coord, geometry as any))
+                                //map!.setFilter('earthquakes-layer', ['==', ['get', 'coordinates'], currentCountry])
+                            }
+                            
+                            
+                        }
+                        //console.log(map!.getFilter("countries-layer-line"))
+                        // country name
+                        //const countryName = map!.getFilter("countries-layer-line")
+                        // if(countryName) {
+                        //     console.log(countryName[2])
+                        //     // filter earthquakes
+                        //     map!.querySourceFeatures("earthquake").map((feature) => {
+                        //         newCountryOptions.push(feature["properties"]!["ADMIN"])
+                        //     })
+                        // }
+
+                        
+                        const countryFeatures = map!.queryRenderedFeatures(e.point, {
+                            layers: ["countries-layer-fill"],
+                        });
+                        //console.log(countryFeatures)
+
+                        
+                        //const insideEarthquakes: any = turf.inside(libraryFeature, countryFeatures);
+
+                        ///source.setData({
+                        //    'type': 'FeatureCollection',
+                        //    'features': [insideEarthquakes]
+                        //})
                     });
                     
-                    map.on('click', currentCountry, () => {
-                        console.log("click")
-                        map!.setFilter('countries-layer-line', ['==', ['get', 'ADMIN'], currentCountry])
-                        map!.setFilter('countries-layer-fill', ['==', ['get', 'ADMIN'], currentCountry])
-                    })
                 }
             });
 
