@@ -1,9 +1,25 @@
+// Init bootstrap for storybook
 import "bootstrap/dist/css/bootstrap.css"
 import "bootstrap/dist/js/bootstrap.js"
-import "mapbox-gl/src/css/mapbox-gl.css"
-import mapboxgl from 'mapbox-gl';
 
-mapboxgl.accessToken = "pk.eyJ1IjoicmFyZXV0b3YiLCJhIjoiY2xkdGs5dGJrMDdtZTNwbnd0Z3A2bHpqcSJ9.7ydo5bWko3uZOBS4FpPcFw";
+// Init redux for storybook
+import { Provider } from 'react-redux'
+import { store } from '../src/store/store'
+import { addDecorator } from '@storybook/react';
+
+// init mapboxgl for storybook
+import mapboxgl from 'mapbox-gl';
+import "mapbox-gl/src/css/mapbox-gl.css"
+mapboxgl.accessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
+
+
+// Init redux decorator
+const withProvider = (story) => (
+  <Provider store={store}>
+    {story()}
+  </Provider>
+)
+addDecorator(withProvider)
 
 export const parameters = {
   actions: { argTypesRegex: "^on[A-Z].*" },
